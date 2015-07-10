@@ -13,6 +13,9 @@ module ActiveJob
       # Job Identifier
       attr_accessor :job_id
 
+      #  Provider Job Identifier - The native id used by the provider
+      attr_accessor :provider_job_id
+
       # Queue on which the job should be run on.
       attr_writer :queue_name
     end
