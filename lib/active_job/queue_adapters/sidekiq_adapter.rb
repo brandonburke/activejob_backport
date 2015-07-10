@@ -2,28 +2,38 @@ require 'sidekiq'
 
 module ActiveJob
   module QueueAdapters
+    # == Sidekiq adapter for Active Job
+    #
+    # Simple, efficient background processing for Ruby. Sidekiq uses threads to
+    # handle many jobs at the same time in the same process. It does not
+    # require Rails but will integrate tightly with it to make background
+    # processing dead simple.
+    #
+    # Read more about Sidekiq {here}[http://sidekiq.org].
+    #
+    # To use Sidekiq set the queue_adapter config to +:sidekiq+.
+    #
+    #   Rails.application.config.active_job.queue_adapter = :sidekiq
     class SidekiqAdapter
-      class << self
-        def enqueue(job)
-          #Sidekiq::Client does not support symbols as keys
-          Sidekiq::Client.push \
-            'class' => JobWrapper,
-            'queue' => job.queue_name,
-            'args'  => [ job.serialize ],
-            'retry' => true
-        end
-
-        def enqueue_at(job, timestamp)
-          Sidekiq::Client.push \
-            'class' => JobWrapper,
-            'queue' => job.queue_name,
-            'args'  => [ job.serialize ],
-            'retry' => true,
-            'at'    => timestamp
-        end
+      def enqueue(job) #:nodoc:
+        #Sidekiq::Client does not support symbols as keys
+        job.provider_job_id = Sidekiq::Client.push \
+          'class'   => JobWrapper,
+          'wrapped' => job.class.to_s,
+          'queue'   => job.queue_name,
+          'args'    => [ job.serialize ]
       end
 
-      class JobWrapper
+      def enqueue_at(job, timestamp) #:nodoc:
+        job.provider_job_id = Sidekiq::Client.push \
+          'class'   => JobWrapper,
+          'wrapped' => job.class.to_s,
+          'queue'   => job.queue_name,
+          'args'    => [ job.serialize ],
+          'at'      => timestamp
+      end
+
+      class JobWrapper #:nodoc:
         include Sidekiq::Worker
 
         def perform(job_data)

@@ -1,5 +1,5 @@
 #--
-# Copyright (c) 2014 David Heinemeier Hansson
+# Copyright (c) 2014-2015 David Heinemeier Hansson
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -24,10 +24,7 @@
 require 'active_support'
 require 'active_support/rails'
 require 'active_job/version'
-require 'global_id' if !defined?(GlobalId)
-require 'global_id/railtie' if defined?(Rails)
-require 'active_job/railtie' if defined?(Rails)
-require 'active_support/core_ext/module/attribute_accessors'
+require 'global_id'
 
 module ActiveJob
   extend ActiveSupport::Autoload
