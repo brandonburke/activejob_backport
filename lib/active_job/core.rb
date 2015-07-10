@@ -25,6 +25,7 @@ module ActiveJob
       def deserialize(job_data)
         job                      = job_data['job_class'].constantize.new
         job.job_id               = job_data['job_id']
+        job.provider_job_id      = job_data['provider_job_id']
         job.queue_name           = job_data['queue_name']
         job.serialized_arguments = job_data['arguments']
         job
@@ -63,10 +64,11 @@ module ActiveJob
     # queueing adapter.
     def serialize
       {
-        'job_class'  => self.class.name,
-        'job_id'     => job_id,
-        'queue_name' => queue_name,
-        'arguments'  => serialize_arguments(arguments)
+        'job_class'       => self.class.name,
+        'job_id'          => job_id,
+        'provider_job_id' => provider_job_id,
+        'queue_name'      => queue_name,
+        'arguments'       => serialize_arguments(arguments)
       }
     end
 
